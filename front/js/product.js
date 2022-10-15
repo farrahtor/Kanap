@@ -27,14 +27,13 @@ function getProduct() {
       let productdescription = document.getElementById("description");
       productdescription.innerHTML = productData.description;
       // option couleur
-      let productColors = document.querySelector("#colors option");
-      for (let colors of productData.colors) {
-        productColors.value = colors;
-        productColors.innerHTML = colors;
-        console.log(productColors);
-        console.log(productData.colors);
-        // productColors.appendChild(document.querySelector("#colors"));
-      }
+      let selectColors = document.querySelector("#colors");
+      productData.colors.forEach((colors) => {
+        let optionColors = document.createElement("option");
+        selectColors.appendChild(optionColors);
+        optionColors.value = colors;
+        optionColors.innerHTML = colors;
+      });
     })
     .catch((err) => {
       console.log(err);
