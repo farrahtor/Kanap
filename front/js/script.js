@@ -19,7 +19,7 @@ function getAllProducts() {
         </a>`;
         sectionItems.innerHTML += productCard;
       }
-    });
+    })
     .catch((err) => {
       console.log(err);
     });

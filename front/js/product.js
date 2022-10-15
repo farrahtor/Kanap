@@ -31,7 +31,12 @@ function getProduct() {
       for (let colors of productData.colors) {
         productColors.value = colors;
         productColors.innerHTML = colors;
-        console.table(colors);
+        console.log(productColors);
+        console.log(productData.colors);
+        // productColors.appendChild(document.querySelector("#colors"));
       }
+    })
+    .catch((err) => {
+      console.log(err);
     });
 }
