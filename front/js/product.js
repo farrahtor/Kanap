@@ -1,7 +1,12 @@
 //Récupération de l'id via les paramètres de l'url
 const productId = new URLSearchParams(window.location.search).get("id");
 console.log(productId);
-
+let pageTitle = document.title;
+let productImg = document.querySelector(".item__img");
+let productTitle = document.getElementById("title");
+let productPrice = document.getElementById("price");
+let productdescription = document.getElementById("description");
+let selectColors = document.querySelector("#colors");
 //Récupération du produit grace a son id
 async function getProduct() {
   let response = await fetch("http://localhost:3000/api/products/" + productId);
@@ -9,22 +14,16 @@ async function getProduct() {
 
   // Repartition des data produits dans le DOM
   //Titre de la page
-  let pageTitle = document.title;
   document.title = productData.name;
   // img
-  let productImg = document.querySelector(".item__img");
   productImg.innerHTML = `<img src="${productData.imageUrl}" alt="${productData.altTxt}">`;
   // title
-  let productTitle = document.getElementById("title");
   productTitle.innerHTML = productData.name;
   //Price
-  let productPrice = document.getElementById("price");
   productPrice.innerHTML = productData.price;
   // description
-  let productdescription = document.getElementById("description");
   productdescription.innerHTML = productData.description;
   // option couleur
-  let selectColors = document.querySelector("#colors");
   productData.colors.forEach((colors) => {
     let optionColors = document.createElement("option");
     selectColors.appendChild(optionColors);
@@ -36,9 +35,9 @@ getProduct();
 
 //Ajout un produit au panier
 
-document.getElementById("addToCart").onclick = (e) => {
+document.getElementById("addToCart").onclick = (data) => {
   // recuperation et validité des valeur color et quantity
-  const color = document.getElementById("colors").value;
+  const color = selectColors.value;
   const quantity = document.getElementById("quantity").value;
   if (color == "") {
     alert("Veuillez choisir une couleur");
@@ -48,13 +47,18 @@ document.getElementById("addToCart").onclick = (e) => {
     alert("Veuillez choisir la quantité comprise entre 1 et 100");
     return;
   }
-  let product = {
+  let productSave = {
     id: productId,
     color: color,
     quantity: parseInt(quantity),
+    name: productTitle.innerText,
+    imgUrl: document.querySelector(".item__img img").src,
+    imgAlt: document.querySelector(".item__img img").alt,
+    price: productPrice.innerText,
   };
+  console.log(productTitle.value);
   function saveCart(cart) {
-    product = localStorage.setItem("cart", JSON.stringify(cart));
+    localStorage.setItem("cart", JSON.stringify(cart));
   }
   function getCart() {
     let cart = localStorage.getItem("cart");
@@ -76,8 +80,10 @@ document.getElementById("addToCart").onclick = (e) => {
       product.quantity = 1;
       cart.push(product);
     }
+
     saveCart(cart);
+    console.log(productSave);
     console.log(cart);
   }
-  addCart(product);
+  addCart(productSave);
 };
