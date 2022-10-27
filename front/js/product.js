@@ -75,9 +75,9 @@ document.getElementById("addToCart").onclick = (data) => {
       (p) => p.id == product.id && p.color == product.color
     );
     if (foundProduct != undefined) {
-      foundProduct.quantity++;
+      product.quantity = parseInt(quantity);
+      foundProduct.quantity += parseInt(quantity);
     } else {
-      product.quantity = 1;
       cart.push(product);
     }
 
