@@ -55,21 +55,18 @@ getCart();
 const totalQuantityDisplay = document.getElementById("totalQuantity");
 const totalPriceDisplay = document.getElementById("totalPrice");
 
-// const inputPrice ;
-
-let sumQuantity = 0;
-let sumPrice = 0;
+let sum = 0;
 function sumQuantityProduct() {
   for (let quantity of quantityArray) {
-    sumQuantity += quantity;
+    sum += parseInt(quantity);
   }
-  totalQuantityDisplay.innerText = sumQuantity;
+  totalQuantityDisplay.innerText = sum;
 }
 function sumPriceProduct() {
   for (let price of priceArray) {
-    sumPrice += price;
+    sum += price;
   }
-  totalPriceDisplay.innerText = sumPrice;
+  totalPriceDisplay.innerText = sum;
 }
 sumQuantityProduct();
 sumPriceProduct();
@@ -78,21 +75,26 @@ sumPriceProduct();
 
 const productDisplay = document.querySelectorAll(".cart__item");
 const inputQuantity = document.querySelectorAll(".itemQuantity");
+const priceDisplay = document.querySelectorAll(
+  ".cart__item__content__description p:last-child"
+);
 function changeQuantity() {
   for (let input of inputQuantity) {
     input.addEventListener("change", (e) => {
       const product = input.closest("article");
-      inputQuantity.textContent = e.target.value;
+      inputQuantity.innerText = e.target.value;
       for (i = 0; i < cart.length; i++) {
         if (
           cart[i].id == product.dataset.id &&
           cart[i].color == product.dataset.color
         ) {
-          console.log("j'ai le bon produit");
-          console.log(cart[i].id);
-          console.log(cart[i].color);
-          cart[i].quantity = e.target.value;
-          console.log((cart[i].quantity = e.target.value));
+          let newValue = parseInt(e.target.value);
+
+          cart[i].quantity = newValue;
+          localStorage.setItem("cart", JSON.stringify(cart));
+          for (let price of priceDisplay) {
+            price.innerText = `${cart[i].price * newValue} €`;
+          }
         }
       }
     });
