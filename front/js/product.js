@@ -56,7 +56,6 @@ document.getElementById("addToCart").onclick = (data) => {
     imgAlt: document.querySelector(".item__img img").alt,
     price: productPrice.innerText,
   };
-  console.log(productTitle.value);
   function saveCart(cart) {
     localStorage.setItem("cart", JSON.stringify(cart));
   }
@@ -80,10 +79,7 @@ document.getElementById("addToCart").onclick = (data) => {
     } else {
       cart.push(product);
     }
-
     saveCart(cart);
-    console.log(productSave);
-    console.log(cart);
   }
   addCart(productSave);
 };

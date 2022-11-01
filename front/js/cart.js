@@ -1,25 +1,43 @@
-// recupérer le panier
-let cart = JSON.parse(localStorage.getItem("cart"));
-
-// gestion du panier vide
-if (cart == null) {
-  console.log("Votre panier est vide ");
-  document.querySelector("h1").innerHTML = `Votre Panier est vide`;
+// recupérer le panier depuis le local storage
+async function getCart() {
+  let cart = await JSON.parse(localStorage.getItem("cart"));
+  if (cart == null) {
+    document.querySelector("h1").innerHTML = `Votre Panier est vide`;
+  }
+  return cart;
 }
 
-// Affichages
-let quantityArray = [];
-let priceArray = [];
-const cartItems = document.getElementById("cart__items");
-function getCart() {
-  for (let product of cart) {
-    // tableau produit(s) dans le panier
+// Récuperer les produits depuis l'APi
+async function getData() {
+  let response = await fetch("http://localhost:3000/api/products/");
+  const productData = await response.json();
+  return productData;
+}
+// récuprér les details du produit présent dans le panier depuis l'api
+async function getCartDetails() {
+  let cart = await getCart();
+  let data = await getData();
+  let productDisplay = [];
 
+  for (let product of cart) {
+    let foundProduct = data.find((p) => p._id == product.id);
+    foundProduct.quantity = product.quantity;
+    foundProduct.color = product.color;
+    productDisplay.push(foundProduct);
+  }
+  return productDisplay;
+}
+
+const cartItems = document.getElementById("cart__items");
+// afficher le panier dans le dom
+async function cartDisplay() {
+  let cart = await getCartDetails();
+  for (let product of cart) {
     cartItems.innerHTML += `<article class="cart__item" data-id="${
       product.id
     }" data-color="${product.color}">
         <div class="cart__item__img">
-          <img src="${product.imgUrl}" alt="${product.alt}">
+          <img src="${product.imageUrl}" alt="${product.alt}">
         </div>
         <div class="cart__item__content">
           <div class="cart__item__content__description">
@@ -40,64 +58,8 @@ function getCart() {
           </div>
         </div>
     </article>`;
-
-    function getArrays() {
-      quantityArray.push(product.quantity);
-      priceArray.push(product.price * product.quantity);
-    }
-    getArrays();
   }
 }
-getCart();
+cartDisplay();
 
-//afficher quantité et prix total
-
-const totalQuantityDisplay = document.getElementById("totalQuantity");
-const totalPriceDisplay = document.getElementById("totalPrice");
-
-let sum = 0;
-function sumQuantityProduct() {
-  for (let quantity of quantityArray) {
-    sum += parseInt(quantity);
-  }
-  totalQuantityDisplay.innerText = sum;
-}
-function sumPriceProduct() {
-  for (let price of priceArray) {
-    sum += price;
-  }
-  totalPriceDisplay.innerText = sum;
-}
-sumQuantityProduct();
-sumPriceProduct();
-
-// gestion de la quantité
-
-const productDisplay = document.querySelectorAll(".cart__item");
-const inputQuantity = document.querySelectorAll(".itemQuantity");
-const priceDisplay = document.querySelectorAll(
-  ".cart__item__content__description p:last-child"
-);
-function changeQuantity() {
-  for (let input of inputQuantity) {
-    input.addEventListener("change", (e) => {
-      const product = input.closest("article");
-      inputQuantity.innerText = e.target.value;
-      for (i = 0; i < cart.length; i++) {
-        if (
-          cart[i].id == product.dataset.id &&
-          cart[i].color == product.dataset.color
-        ) {
-          let newValue = parseInt(e.target.value);
-
-          cart[i].quantity = newValue;
-          localStorage.setItem("cart", JSON.stringify(cart));
-          for (let price of priceDisplay) {
-            price.innerText = `${cart[i].price * newValue} €`;
-          }
-        }
-      }
-    });
-  }
-}
-changeQuantity();
+console.log();
