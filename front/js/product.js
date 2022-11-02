@@ -48,13 +48,9 @@ document.getElementById("addToCart").onclick = (data) => {
     return;
   }
   let productSave = {
-    id: productId,
+    _id: productId,
     color: color,
     quantity: parseInt(quantity),
-    name: productTitle.innerText,
-    imgUrl: document.querySelector(".item__img img").src,
-    imgAlt: document.querySelector(".item__img img").alt,
-    price: productPrice.innerText,
   };
   function saveCart(cart) {
     localStorage.setItem("cart", JSON.stringify(cart));
