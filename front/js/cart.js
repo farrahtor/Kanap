@@ -13,6 +13,7 @@ async function getData() {
   const productData = await response.json();
   return productData;
 }
+
 // récuprér les details du produit présent dans le panier depuis l'api
 async function getCartDetails() {
   let cart = await getCart();
@@ -20,15 +21,18 @@ async function getCartDetails() {
   let productDisplay = [];
 
   for (let product of cart) {
-    let foundProduct = data.find((p) => p._id == product.id);
-    foundProduct.quantity = product.quantity;
-    foundProduct.color = product.color;
-    productDisplay.push(foundProduct);
+    let foundProduct = data.find((p) => p._id == product._id);
+    product.name = foundProduct.name;
+    product.imageUrl = foundProduct.imageUrl;
+    product.altTxt = foundProduct.altTxt;
+    product.price = foundProduct.price;
+    productDisplay.push(product);
   }
   return productDisplay;
 }
 
 const cartItems = document.getElementById("cart__items");
+
 // afficher le panier dans le dom
 async function cartDisplay() {
   let cart = await getCartDetails();
@@ -36,30 +40,45 @@ async function cartDisplay() {
     cartItems.innerHTML += `<article class="cart__item" data-id="${
       product.id
     }" data-color="${product.color}">
-        <div class="cart__item__img">
-          <img src="${product.imageUrl}" alt="${product.alt}">
+    <div class="cart__item__img">
+      <img src="${product.imageUrl}" alt="${product.altTxt}">
+    </div>
+    <div class="cart__item__content">
+      <div class="cart__item__content__description">
+        <h2>${product.name}</h2>
+        <p>${product.color}</p>
+        <p>${product.price * product.quantity}</p>
+      </div>
+      <div class="cart__item__content__settings">
+        <div class="cart__item__content__settings__quantity">
+          <p>Qté : </p>
+          <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${
+            product.quantity
+          }">
         </div>
-        <div class="cart__item__content">
-          <div class="cart__item__content__description">
-            <h2>${product.name}</h2>
-            <p>${product.color}</p>
-            <p>${product.price * product.quantity} €</p>
-          </div>
-          <div class="cart__item__content__settings">
-            <div class="cart__item__content__settings__quantity">
-              <p>Qté : </p>
-              <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${
-                product.quantity
-              }">
-            </div>
-            <div class="cart__item__content__settings__delete">
-              <p class="deleteItem">Supprimer</p>
-            </div>
-          </div>
+        <div class="cart__item__content__settings__delete">
+          <p class="deleteItem">Supprimer</p>
         </div>
-    </article>`;
+      </div>
+    </div>
+  </article>`;
   }
 }
 cartDisplay();
+////afficher quantité et prix total
 
-console.log();
+const totalQuantityDisplay = document.getElementById("totalQuantity");
+const totalPriceDisplay = document.getElementById("totalPrice");
+
+let sumQuantity = 0;
+let sumPrice = 0;
+async function cartTotal() {
+  let cart = await getCartDetails();
+  for (let product of cart) {
+    sumQuantity += parseInt(product.quantity);
+    sumPrice += product.price * product.quantity;
+  }
+  totalQuantityDisplay.innerText = sumQuantity;
+  totalPriceDisplay.innerText = sumPrice;
+}
+cartTotal();
