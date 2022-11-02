@@ -31,9 +31,9 @@ async function getCartDetails() {
   return productDisplay;
 }
 
+// afficher le panier dans le dom
 const cartItems = document.getElementById("cart__items");
 
-// afficher le panier dans le dom
 async function cartDisplay() {
   let cart = await getCartDetails();
   for (let product of cart) {
@@ -65,8 +65,8 @@ async function cartDisplay() {
   }
 }
 cartDisplay();
-////afficher quantité et prix total
 
+////afficher quantité et prix total
 const totalQuantityDisplay = document.getElementById("totalQuantity");
 const totalPriceDisplay = document.getElementById("totalPrice");
 
@@ -82,3 +82,14 @@ async function cartTotal() {
   totalPriceDisplay.innerText = sumPrice;
 }
 cartTotal();
+
+//Modifier la quantité de produit
+
+const productDisplay = document.querySelectorAll(".cart__item");
+const inputQuantity = document.querySelectorAll(".itemQuantity");
+const priceDisplay = document.querySelectorAll(
+  ".cart__item__content__description p:last-child"
+);
+
+const a = document.querySelector(".itemQuantity");
+console.log(a);
