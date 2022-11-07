@@ -1,45 +1,49 @@
+// recupérer le panier ds localstor
 // recupérer le panier depuis le local storage
-async function getCart() {
-  let cart = await JSON.parse(localStorage.getItem("cart"));
-  if (cart == null) {
+async function getCartInLocalStorage() {
+  let cartInLocalStorage = await JSON.parse(localStorage.getItem("cart"));
+  if (cartInLocalStorage == null || cartInLocalStorage == 0) {
     document.querySelector("h1").innerHTML = `Votre Panier est vide`;
+    cartInLocalStorage = [];
   }
-  return cart;
+  return cartInLocalStorage;
 }
-
 // Récuperer les produits depuis l'APi
-async function getData() {
+async function getDataProduct() {
   let response = await fetch("http://localhost:3000/api/products/");
   const productData = await response.json();
   return productData;
 }
 
-// récuprér les details du produit présent dans le panier depuis l'api
-async function getCartDetails() {
-  let cart = await getCart();
-  let data = await getData();
+// Récuprer les details du produit présent dans le panier depuis l'api
+// les mettre dans un nouveau tableau productDisplay
+async function getCartProduct() {
+  let cart = await getCartInLocalStorage();
+  let data = await getDataProduct();
   let productDisplay = [];
 
   for (let product of cart) {
     let foundProduct = data.find((p) => p._id == product._id);
-    product.name = foundProduct.name;
-    product.imageUrl = foundProduct.imageUrl;
-    product.altTxt = foundProduct.altTxt;
-    product.price = foundProduct.price;
-    productDisplay.push(product);
+
+    if (foundProduct) {
+      product.name = foundProduct.name;
+      product.imageUrl = foundProduct.imageUrl;
+      product.altTxt = foundProduct.altTxt;
+      product.price = foundProduct.price;
+      productDisplay.push(product);
+    }
   }
   return productDisplay;
 }
 
-// afficher le panier dans le dom
-const cartItems = document.getElementById("cart__items");
-
+// afficher les produits
 async function cartDisplay() {
-  let cart = await getCartDetails();
-  for (let product of cart) {
-    cartItems.innerHTML += `<article class="cart__item" data-id="${
-      product.id
-    }" data-color="${product.color}">
+  const productDisplay = await getCartProduct();
+
+  // //afficher les produit
+  const cartItems = document.getElementById("cart__items");
+  for (let product of productDisplay) {
+    cartItems.innerHTML += `<article class="cart__item" data-id="${product._id}" data-color="${product.color}">
     <div class="cart__item__img">
       <img src="${product.imageUrl}" alt="${product.altTxt}">
     </div>
@@ -47,14 +51,12 @@ async function cartDisplay() {
       <div class="cart__item__content__description">
         <h2>${product.name}</h2>
         <p>${product.color}</p>
-        <p>${product.price * product.quantity}</p>
+        <p>${product.price}</p>
       </div>
       <div class="cart__item__content__settings">
         <div class="cart__item__content__settings__quantity">
           <p>Qté : </p>
-          <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${
-            product.quantity
-          }">
+          <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${product.quantity}">
         </div>
         <div class="cart__item__content__settings__delete">
           <p class="deleteItem">Supprimer</p>
@@ -62,34 +64,78 @@ async function cartDisplay() {
       </div>
     </div>
   </article>`;
+    deleteProduct(product);
   }
+  cartTotal(productDisplay);
+  changeQuantity();
 }
-cartDisplay();
+// //afficher quantité et prix total
 
-////afficher quantité et prix total
-const totalQuantityDisplay = document.getElementById("totalQuantity");
-const totalPriceDisplay = document.getElementById("totalPrice");
-
-let sumQuantity = 0;
-let sumPrice = 0;
-async function cartTotal() {
-  let cart = await getCartDetails();
-  for (let product of cart) {
+async function cartTotal(productDisplay) {
+  let sumQuantity = 0;
+  let sumPrice = 0;
+  for (let product of productDisplay) {
     sumQuantity += parseInt(product.quantity);
     sumPrice += product.price * product.quantity;
   }
-  totalQuantityDisplay.innerText = sumQuantity;
-  totalPriceDisplay.innerText = sumPrice;
+  document.getElementById("totalQuantity").innerText = sumQuantity;
+  document.getElementById("totalPrice").innerText = sumPrice;
 }
-cartTotal();
 
 //Modifier la quantité de produit
+async function changeQuantity() {
+  let cartInLocalStorage = await getCartInLocalStorage();
+  let cartDisplay = await getCartProduct();
+  const inputQuantity = document.querySelectorAll(".itemQuantity");
+  for (let input of inputQuantity) {
+    input.addEventListener("change", (e) => {
+      const productData = input.closest("article");
+      let newValue = parseInt(e.target.value);
+      input.innerText = newValue;
+      // enregistré la nouvelle quantité dans le localStorage
+      for (let product of cartInLocalStorage) {
+        if (
+          product._id == productData.dataset.id &&
+          product.color == productData.dataset.color
+        ) {
+          product.quantity = newValue;
+          if (product)
+            localStorage.setItem("cart", JSON.stringify(cartInLocalStorage));
+        }
+      }
 
-const productDisplay = document.querySelectorAll(".cart__item");
-const inputQuantity = document.querySelectorAll(".itemQuantity");
-const priceDisplay = document.querySelectorAll(
-  ".cart__item__content__description p:last-child"
-);
+      // enregistré la nouvelle quantité dans productDisplay + calcul total
+      for (let product of cartDisplay) {
+        if (
+          product._id == productData.dataset.id &&
+          product.color == productData.dataset.color
+        ) {
+          product.quantity = newValue;
+          console.log(cartDisplay);
+        }
+        cartTotal(cartDisplay);
+      }
+    });
+  }
+}
 
-const a = document.querySelector(".itemQuantity");
-console.log(a);
+// Supprimer un produit
+async function deleteProduct(product) {
+  let cartInLocalStorage = await getCartInLocalStorage();
+  let btnDelete = document.querySelectorAll(".deleteItem");
+  for (let btn of btnDelete) {
+    btn.addEventListener("click", (e) => {
+      const foundProduct = cartInLocalStorage.filter(
+        (p) => p._id != product.id && p.color != product.color
+      );
+      if (foundProduct != undefined) {
+        localStorage.setItem("cart", JSON.stringify(foundProduct));
+        window.location.reload();
+      }
+    });
+  }
+}
+
+cartDisplay();
+
+// /FORMULAIRE/ //
