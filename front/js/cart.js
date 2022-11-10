@@ -138,4 +138,140 @@ async function deleteProduct(product) {
 
 cartDisplay();
 
+// /////////////////////////////////////////////////////////
 // /FORMULAIRE/ //
+// Ecouterle formulaire
+
+const form = document.querySelector(".cart__order__form");
+// RegExp
+const nameRegExp = new RegExp("^[a-zA-Z,.'-]+$");
+const addressRegExp = new RegExp("(?:[A-Z][a-zA-Z0-9,-]+[ ]?)+");
+const emailRegExp = new RegExp(
+  "^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$"
+);
+
+//Ecouter la modification du Prénom
+form.firstName.addEventListener("change", function () {
+  validFirstName(this);
+});
+//Ecouter la modification du Nom
+form.lastName.addEventListener("change", function () {
+  validLastName(this);
+});
+
+//Ecouter la modification de l'adresse
+form.address.addEventListener("change", function () {
+  validAddress(this);
+});
+//Ecouter la modification de la ville
+form.city.addEventListener("change", function () {
+  validCity(this);
+});
+//Ecouter la modification de l'email
+form.email.addEventListener("change", function () {
+  validEmail(this);
+});
+
+// Valider Prénom
+const validFirstName = function (inputFirstName) {
+  if (nameRegExp.test(inputFirstName.value)) {
+    document.getElementById("firstNameErrorMsg").innerText = "";
+    return true;
+  } else {
+    document.getElementById("firstNameErrorMsg").innerText =
+      "Prénom non valide";
+    return false;
+  }
+};
+// Valider Nom
+const validLastName = function (inputLastName) {
+  if (nameRegExp.test(inputLastName.value)) {
+    document.getElementById("lastNameErrorMsg").innerText = "";
+    return true;
+  } else {
+    document.getElementById("lastNameErrorMsg").innerText = "Nom non valide";
+    return false;
+  }
+};
+// Valider Address
+const validAddress = function (inputAddress) {
+  if (addressRegExp.test(inputAddress.value)) {
+    document.getElementById("addressErrorMsg").innerText = "";
+    return true;
+  } else {
+    document.getElementById("addressErrorMsg").innerText = "Address non valide";
+    return false;
+  }
+};
+// Valider City
+const validCity = function (inputCity) {
+  if (addressRegExp.test(inputCity.value)) {
+    document.getElementById("cityErrorMsg").innerText = "";
+    return true;
+  } else {
+    document.getElementById("cityErrorMsg").innerText = "City non valide";
+    return false;
+  }
+};
+// Valider Email
+const validEmail = function (inputEmail) {
+  if (emailRegExp.test(inputEmail.value)) {
+    document.getElementById("emailErrorMsg").innerText = "";
+    return true;
+  } else {
+    document.getElementById("emailErrorMsg").innerText = "Email non valide";
+    return false;
+  }
+};
+
+//Constituer un objet contact (à partir des données du formulaire) et un tableau de produits
+async function getContact() {
+  let cart = await getCartInLocalStorage();
+  let productID = [];
+  for (let product of cart) {
+    productID.push(product._id);
+  }
+  let contact = {
+    firstName: form.firstName.value,
+    lastName: form.lastName.value,
+    address: form.address.value,
+    city: form.city.value,
+    email: form.email.value,
+  };
+  let jsonData = JSON.stringify({ contact, productID });
+  return jsonData;
+}
+
+// Envoie du formulaire
+async function postOrder() {
+  let contact = await getContact();
+  form.addEventListener("submit", function (e) {
+    e.preventDefault(); //stop l'action par defaut
+    if (
+      validFirstName(form.firstName) &&
+      validLastName(form.lastName) &&
+      validAddress(form.address) &&
+      validCity(form.city) &&
+      validEmail(form.email)
+    ) {
+      const options = {
+        method: "POST",
+        body: contact,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      fetch("http://localhost:3000/api/products/order", options)
+        .then((response) => response.json())
+        .then((data) => {
+          document.location.href = "confirmation.html?id=" + data.orderId;
+          localStorage.clear();
+        });
+    } else {
+      console.log("Non ok");
+    }
+  });
+}
+postOrder();
+console.log();
