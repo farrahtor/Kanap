@@ -40,11 +40,31 @@ document.getElementById("addToCart").onclick = (data) => {
   const color = selectColors.value;
   const quantity = document.getElementById("quantity").value;
   if (color == "") {
-    alert("Veuillez choisir une couleur");
+    // alert("Veuillez choisir une couleur");
+    Toastify({
+      text: "Veuillez choisir une couleur",
+      duration: 3000,
+      gravity: "top", // `top` or `bottom`
+      position: "center", // `left`, `center` or `right`
+      stopOnFocus: true, // Prevents dismissing of toast on hover
+      style: {
+        background: "linear-gradient(to right, #3498db, #2c3e50)",
+      },
+    }).showToast();
     return;
   }
   if (quantity == 0 || quantity > 100) {
-    alert("Veuillez choisir la quantité comprise entre 1 et 100");
+    // alert("Veuillez choisir la quantité comprise entre 1 et 100");
+    Toastify({
+      text: "Veuillez choisir la quantité comprise entre 1 et 100",
+      duration: 3000,
+      gravity: "top", // `top` or `bottom`
+      position: "center", // `left`, `center` or `right`
+      stopOnFocus: true, // Prevents dismissing of toast on hover
+      style: {
+        background: "linear-gradient(to right, #3498db, #2c3e50)",
+      },
+    }).showToast();
     return;
   }
   let productSave = {
@@ -63,6 +83,16 @@ document.getElementById("addToCart").onclick = (data) => {
       return JSON.parse(cart);
     }
   }
+  Toastify({
+    text: "Votre produit a été ajouté au panier",
+    duration: 3000,
+    gravity: "top", // `top` or `bottom`
+    position: "center", // `left`, `center` or `right`
+    stopOnFocus: true, // Prevents dismissing of toast on hover
+    style: {
+      background: "linear-gradient(to right, #3498db, #2c3e50)",
+    },
+  }).showToast();
 
   function addCart(product) {
     let cart = getCart();
