@@ -144,7 +144,7 @@ cartDisplay();
 
 const form = document.querySelector(".cart__order__form");
 // RegExp
-const nameRegExp = new RegExp("^[a-zA-Z,.'-]+$");
+const nameRegExp = new RegExp("^[a-zA-Z, .'-]+$");
 const addressRegExp = new RegExp("(?:[A-Z][a-zA-Z0-9,-]+[ ]?)+");
 const emailRegExp = new RegExp(
   "^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$"
@@ -224,27 +224,10 @@ const validEmail = function (inputEmail) {
   }
 };
 
-//Constituer un objet contact (à partir des données du formulaire) et un tableau de produits
-async function getContact() {
-  let cart = await getCartInLocalStorage();
-  let productID = [];
-  for (let product of cart) {
-    productID.push(product._id);
-  }
-  let contact = {
-    firstName: form.firstName.value,
-    lastName: form.lastName.value,
-    address: form.address.value,
-    city: form.city.value,
-    email: form.email.value,
-  };
-  let jsonData = JSON.stringify({ contact, productID });
-  return jsonData;
-}
-
 // Envoie du formulaire
 async function postOrder() {
-  let contact = await getContact();
+  let cart = await getCartInLocalStorage();
+  let products = [];
   form.addEventListener("submit", function (e) {
     e.preventDefault(); //stop l'action par defaut
     if (
@@ -254,14 +237,25 @@ async function postOrder() {
       validCity(form.city) &&
       validEmail(form.email)
     ) {
+      //Constituer un objet contact (à partir des données du formulaire)
+      let contact = {
+        firstName: form.firstName.value,
+        lastName: form.lastName.value,
+        address: form.address.value,
+        city: form.city.value,
+        email: form.email.value,
+      };
+      // tableau de produits
+      for (let product of cart) {
+        products.push(product._id);
+      }
       const options = {
         method: "POST",
-        body: contact,
+        body: JSON.stringify({ contact, products }),
         headers: {
           "Content-Type": "application/json",
         },
       };
-
       fetch("http://localhost:3000/api/products/order", options)
         .then((response) => response.json())
         .then((data) => {
