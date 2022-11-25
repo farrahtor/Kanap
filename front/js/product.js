@@ -1,6 +1,7 @@
 //Récupération de l'id via les paramètres de l'url
 const productId = new URLSearchParams(window.location.search).get("id");
 console.log(productId);
+
 let pageTitle = document.title;
 let productImg = document.querySelector(".item__img");
 let productTitle = document.getElementById("title");
@@ -12,18 +13,11 @@ async function getProduct() {
   let response = await fetch("http://localhost:3000/api/products/" + productId);
   const productData = await response.json();
 
-  // Repartition des data produits dans le DOM
-  //Titre de la page
   document.title = productData.name;
-  // img
   productImg.innerHTML = `<img src="${productData.imageUrl}" alt="${productData.altTxt}">`;
-  // title
   productTitle.innerHTML = productData.name;
-  //Price
   productPrice.innerHTML = productData.price;
-  // description
   productdescription.innerHTML = productData.description;
-  // option couleur
   productData.colors.forEach((colors) => {
     let optionColors = document.createElement("option");
     selectColors.appendChild(optionColors);
@@ -36,31 +30,28 @@ getProduct();
 //Ajout un produit au panier
 
 document.getElementById("addToCart").onclick = (data) => {
-  // recuperation et validité des valeur color et quantity
   const color = selectColors.value;
   const quantity = document.getElementById("quantity").value;
   if (color == "") {
-    // alert("Veuillez choisir une couleur");
     Toastify({
       text: "Veuillez choisir une couleur",
       duration: 3000,
-      gravity: "top", // `top` or `bottom`
-      position: "center", // `left`, `center` or `right`
-      stopOnFocus: true, // Prevents dismissing of toast on hover
+      gravity: "top",
+      position: "center",
+      stopOnFocus: true,
       style: {
         background: "linear-gradient(to right, #3498db, #2c3e50)",
       },
     }).showToast();
     return;
   }
-  if (quantity == 0 || quantity > 100) {
-    // alert("Veuillez choisir la quantité comprise entre 1 et 100");
+  if (quantity <= 0 || quantity >= 100) {
     Toastify({
       text: "Veuillez choisir la quantité comprise entre 1 et 100",
       duration: 3000,
-      gravity: "top", // `top` or `bottom`
-      position: "center", // `left`, `center` or `right`
-      stopOnFocus: true, // Prevents dismissing of toast on hover
+      gravity: "top",
+      position: "center",
+      stopOnFocus: true,
       style: {
         background: "linear-gradient(to right, #3498db, #2c3e50)",
       },
@@ -86,9 +77,9 @@ document.getElementById("addToCart").onclick = (data) => {
   Toastify({
     text: "Votre produit a été ajouté au panier",
     duration: 3000,
-    gravity: "top", // `top` or `bottom`
-    position: "center", // `left`, `center` or `right`
-    stopOnFocus: true, // Prevents dismissing of toast on hover
+    gravity: "top",
+    position: "center",
+    stopOnFocus: true,
     style: {
       background: "linear-gradient(to right, #3498db, #2c3e50)",
     },

@@ -90,8 +90,24 @@ async function changeQuantity() {
   for (let input of inputQuantity) {
     input.addEventListener("change", (e) => {
       const productData = input.closest("article");
-      let newValue = parseInt(e.target.value);
+      let newValue = e.target.value;
+
+      if (newValue <= 0 || newValue >= 100) {
+        Toastify({
+          text: "Veuillez choisir la quantité comprise entre 1 et 100",
+          duration: 3000,
+          gravity: "top",
+          position: "center",
+          stopOnFocus: true,
+          style: {
+            background: "linear-gradient(to right, #3498db, #2c3e50)",
+          },
+        }).showToast();
+        e.target.value = 1;
+        newValue = 1;
+      }
       input.innerText = newValue;
+      console.log(newValue);
       // enregistré la nouvelle quantité dans le localStorage
       for (let product of cartInLocalStorage) {
         if (
